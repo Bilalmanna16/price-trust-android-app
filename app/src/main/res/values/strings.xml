@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">pricetrust</string>
+    <string name="app_name">Pricetrust</string>
+
+    <string name="title_app">Price Trust Analyzer</string>
+    <string name="hint_product_name">Enter product name</string>
+    <string name="hint_price">Enter price</string>
+    <string name="btn_analyze">Analyze Price</string>
+    <string name="btn_history">View Price History</string>
 </resources>
