@@ -3,6 +3,10 @@ package com.App.pricetrust.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.Cursor;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -31,5 +35,45 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + PriceContract.PriceEntry.TABLE_NAME);
         onCreate(db);
+    }
+
+    public List<String> getAllPriceEntries() {
+
+        List<String> priceList = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                PriceContract.PriceEntry.COLUMN_PRODUCT_NAME,
+                PriceContract.PriceEntry.COLUMN_PRICE,
+                PriceContract.PriceEntry.COLUMN_TIMESTAMP
+        };
+
+        Cursor cursor = db.query(
+                PriceContract.PriceEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                PriceContract.PriceEntry.COLUMN_TIMESTAMP + " DESC"
+        );
+
+        while (cursor.moveToNext()) {
+            String productName = cursor.getString(
+                    cursor.getColumnIndexOrThrow(
+                            PriceContract.PriceEntry.COLUMN_PRODUCT_NAME));
+
+            double price = cursor.getDouble(
+                    cursor.getColumnIndexOrThrow(
+                            PriceContract.PriceEntry.COLUMN_PRICE));
+
+            priceList.add(productName + " - ₹" + price);
+        }
+
+        cursor.close();
+        db.close();
+
+        return priceList;
     }
 }
