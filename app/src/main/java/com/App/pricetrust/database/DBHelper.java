@@ -76,4 +76,33 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return priceList;
     }
+
+    public List<Double> getPricesForProduct(String productName) {
+
+        List<Double> prices = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selection = PriceContract.PriceEntry.COLUMN_PRODUCT_NAME + " = ?";
+        String[] selectionArgs = { productName };
+
+        Cursor cursor = db.query(
+                PriceContract.PriceEntry.TABLE_NAME,
+                new String[]{ PriceContract.PriceEntry.COLUMN_PRICE },
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        while (cursor.moveToNext()) {
+            prices.add(cursor.getDouble(0));
+        }
+
+        cursor.close();
+        db.close();
+
+        return prices;
+    }
+
 }

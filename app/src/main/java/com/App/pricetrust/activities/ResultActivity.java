@@ -3,10 +3,12 @@ package com.App.pricetrust.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.App.pricetrust.R;
+import com.App.pricetrust.database.DBHelper;
+import com.App.pricetrust.ml.TrustScoreMapper;
+import java.util.List;
+
 
 public class ResultActivity extends AppCompatActivity {
 
@@ -29,5 +31,16 @@ public class ResultActivity extends AppCompatActivity {
         // Display data
         tvProductName.setText("Product: " + productName);
         tvProductPrice.setText("Price: ₹" + productPrice);
+
+        DBHelper dbHelper = new DBHelper(this);
+        List<Double> historicalPrices =
+                dbHelper.getPricesForProduct(productName);
+
+        double trustScore = TrustScoreMapper.calculateTrustScore(
+                productPrice,
+                historicalPrices
+        );
+        TextView tvTrustScore = findViewById(R.id.tvTrustScore);
+        tvTrustScore.setText("Trust Score: " + trustScore);
     }
 }
