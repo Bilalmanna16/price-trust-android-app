@@ -10,6 +10,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.App.pricetrust.R;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.App.pricetrust.database.DBHelper;
+import com.App.pricetrust.database.PriceContract;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,7 +67,18 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Temporary navigation (ML comes later)
+        // Save price entry to SQLite
+        DBHelper dbHelper = new DBHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(PriceContract.PriceEntry.COLUMN_PRODUCT_NAME, productName);
+        values.put(PriceContract.PriceEntry.COLUMN_PRICE, price);
+        values.put(PriceContract.PriceEntry.COLUMN_TIMESTAMP, System.currentTimeMillis());
+
+        db.insert(PriceContract.PriceEntry.TABLE_NAME, null, values);
+        db.close();
+
         Intent intent = new Intent(MainActivity.this, ResultActivity.class);
         intent.putExtra("product_name", productName);
         intent.putExtra("product_price", price);
