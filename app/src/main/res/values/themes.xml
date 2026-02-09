@@ -6,4 +6,18 @@
     </style>
 
     <style name="Theme.Pricetrust" parent="Base.Theme.Pricetrust" />
+    <style name="Theme.Pricetrust.Splash" parent="Theme.SplashScreen">
+        <!-- Background color -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+
+        <!-- App icon -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+
+        <!-- Icon background (optional) -->
+        <item name="windowSplashScreenIconBackgroundColor">@color/white</item>
+
+        <!-- Theme after splash -->
+        <item name="postSplashScreenTheme">@style/Theme.Pricetrust</item>
+    </style>
+
 </resources>
