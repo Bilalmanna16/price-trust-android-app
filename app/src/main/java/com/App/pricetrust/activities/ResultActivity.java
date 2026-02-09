@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,14 +23,10 @@ import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
 
-    private TextView tvProductName;
-    private TextView tvProductPrice;
-    private TextView tvTrustScore;
-    private TextView tvStatus;
-    private TextView tvExplanation;
-    private TextView tvConfidence;
-
+    private TextView tvProductName, tvProductPrice, tvTrustScore;
+    private TextView tvStatus, tvExplanation, tvConfidence;
     private MaterialCardView cardTrustScore;
+    private ProgressBar progressTrust;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,52 +41,49 @@ public class ResultActivity extends AppCompatActivity {
         tvExplanation = findViewById(R.id.tvExplanation);
         tvConfidence = findViewById(R.id.tvConfidence);
         cardTrustScore = findViewById(R.id.cardTrustScore);
+        progressTrust = findViewById(R.id.progressTrust);
 
-        // Receive data from MainActivity
+        // Receive data
         Intent intent = getIntent();
         String productName = intent.getStringExtra("product_name");
         double productPrice = intent.getDoubleExtra("product_price", 0.0);
 
-        // Display product info
         tvProductName.setText(productName);
         tvProductPrice.setText("₹" + productPrice);
 
-        // Fetch historical prices from SQLite
+        // Fetch historical prices
         DBHelper dbHelper = new DBHelper(this);
-        List<Double> historicalPrices =
-                dbHelper.getPricesForProduct(productName);
+        List<Double> historicalPrices = dbHelper.getPricesForProduct(productName);
 
-        // Local (offline) trust score
+        // Local trust score
         double localTrustScore = TrustScoreMapper.calculateTrustScore(
-                productPrice,
-                historicalPrices
+                productPrice, historicalPrices
         );
 
-        // Initial UI state
-        tvTrustScore.setText("--");
+        // Show loading state
+        progressTrust.setVisibility(View.VISIBLE);
+        tvTrustScore.setVisibility(View.INVISIBLE);
         tvStatus.setText("Analyzing...");
         tvExplanation.setText("Analyzing price based on past data.");
         tvConfidence.setText("Confidence: Medium");
 
-        // Call ML API in background thread
+        // ML call
         new Thread(() -> {
             try {
                 JSONObject mlResponse = ApiClient.callMLApi(
-                        productName,
-                        productPrice,
-                        historicalPrices
+                        productName, productPrice, historicalPrices
                 );
 
                 double mlScore = mlResponse.getDouble("ml_trust_score");
-
-                // Hybrid score (local + ML)
-                double finalScore =
-                        (0.6 * localTrustScore) + (0.4 * mlScore);
+                double finalScore = (0.6 * localTrustScore) + (0.4 * mlScore);
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    double roundedScore = Math.round(finalScore);
+                    progressTrust.setVisibility(View.GONE);
+                    tvTrustScore.setVisibility(View.VISIBLE);
 
+                    double roundedScore = Math.round(finalScore);
                     tvTrustScore.setText(String.valueOf((int) roundedScore));
+
                     applyTrustColor(
                             roundedScore,
                             cardTrustScore,
@@ -105,11 +100,13 @@ public class ResultActivity extends AppCompatActivity {
                 });
 
             } catch (Exception e) {
-                // Fallback to offline score
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    double roundedScore = Math.round(localTrustScore);
+                    progressTrust.setVisibility(View.GONE);
+                    tvTrustScore.setVisibility(View.VISIBLE);
 
+                    double roundedScore = Math.round(localTrustScore);
                     tvTrustScore.setText(String.valueOf((int) roundedScore));
+
                     applyTrustColor(
                             roundedScore,
                             cardTrustScore,
@@ -126,15 +123,13 @@ public class ResultActivity extends AppCompatActivity {
         }).start();
     }
 
-    // Helper method for color-coded trust UI
     private void applyTrustColor(
             double score,
             MaterialCardView card,
             TextView scoreView,
             TextView statusView
     ) {
-        int textColor;
-        int bgColor;
+        int textColor, bgColor;
         String status;
 
         if (score >= 75) {

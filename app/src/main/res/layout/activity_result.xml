@@ -74,11 +74,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
+                <!-- Progress Indicator -->
+                <ProgressBar
+                    android:id="@+id/progressTrust"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/tvStatus"
                     android:text="Status"
                     android:textSize="16sp"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
