@@ -65,7 +65,12 @@ public class ResultActivity extends AppCompatActivity {
                 dbHelper.getPricesForProduct(productName);
 
         // Show price trend chart
-        showPriceTrendChart(historicalPrices, productPrice);
+        if (historicalPrices != null && historicalPrices.size() > 0) {
+            showPriceTrendChart(historicalPrices, productPrice);
+        } else {
+            priceChart.setVisibility(View.GONE);
+        }
+
 
         // Local trust score (offline)
         double localTrustScore = TrustScoreMapper.calculateTrustScore(
