@@ -154,26 +154,33 @@ public class ResultActivity extends AppCompatActivity {
             List<Double> historicalPrices,
             double currentPrice
     ) {
-        List<Entry> entries = new ArrayList<>();
+        List<Entry> historyEntries = new ArrayList<>();
 
         for (int i = 0; i < historicalPrices.size(); i++) {
-            entries.add(new Entry(i, historicalPrices.get(i).floatValue()));
+            historyEntries.add(new Entry(i, historicalPrices.get(i).floatValue()));
         }
 
-        // Add current price as last point
-        entries.add(new Entry(
-                historicalPrices.size(),
-                (float) currentPrice
-        ));
+        // Historical prices line
+        LineDataSet historySet = new LineDataSet(historyEntries, "History");
+        historySet.setLineWidth(2f);
+        historySet.setCircleRadius(4f);
+        historySet.setDrawValues(false);
+        historySet.setColor(ContextCompat.getColor(this, R.color.trust_yellow));
+        historySet.setCircleColor(ContextCompat.getColor(this, R.color.trust_yellow));
 
-        LineDataSet dataSet = new LineDataSet(entries, "Price Trend");
-        dataSet.setLineWidth(2f);
-        dataSet.setCircleRadius(4f);
-        dataSet.setDrawValues(false);
-        dataSet.setColor(ContextCompat.getColor(this, R.color.trust_green));
-        dataSet.setCircleColor(ContextCompat.getColor(this, R.color.trust_green));
+        // Current price highlighted
+        List<Entry> currentEntry = new ArrayList<>();
+        currentEntry.add(new Entry(historicalPrices.size(), (float) currentPrice));
 
-        LineData lineData = new LineData(dataSet);
+        LineDataSet currentSet = new LineDataSet(currentEntry, "Current Price");
+        currentSet.setCircleRadius(6f);
+        currentSet.setDrawValues(false);
+        currentSet.setColor(ContextCompat.getColor(this, R.color.trust_red));
+        currentSet.setCircleColor(ContextCompat.getColor(this, R.color.trust_red));
+        currentSet.setDrawCircles(true);
+        currentSet.setLineWidth(0f);
+
+        LineData lineData = new LineData(historySet, currentSet);
         priceChart.setData(lineData);
 
         priceChart.getDescription().setEnabled(false);
@@ -186,6 +193,7 @@ public class ResultActivity extends AppCompatActivity {
         priceChart.getAxisRight().setEnabled(false);
         priceChart.invalidate();
     }
+
 
     // ----------------- UI HELPERS -----------------
 
