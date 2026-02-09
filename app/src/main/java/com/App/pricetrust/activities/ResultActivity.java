@@ -53,21 +53,22 @@ public class ResultActivity extends AppCompatActivity {
 
         // Fetch historical prices
         DBHelper dbHelper = new DBHelper(this);
-        List<Double> historicalPrices = dbHelper.getPricesForProduct(productName);
+        List<Double> historicalPrices =
+                dbHelper.getPricesForProduct(productName);
 
-        // Local trust score
+        // Local trust score (offline)
         double localTrustScore = TrustScoreMapper.calculateTrustScore(
                 productPrice, historicalPrices
         );
 
-        // Show loading state
+        // Initial loading UI
         progressTrust.setVisibility(View.VISIBLE);
         tvTrustScore.setVisibility(View.INVISIBLE);
         tvStatus.setText("Analyzing...");
         tvExplanation.setText("Analyzing price based on past data.");
         tvConfidence.setText("Confidence: Medium");
 
-        // ML call
+        // ML call in background
         new Thread(() -> {
             try {
                 JSONObject mlResponse = ApiClient.callMLApi(
@@ -92,7 +93,7 @@ public class ResultActivity extends AppCompatActivity {
                     );
 
                     tvExplanation.setText(
-                            "This price was compared with your previous prices for this product."
+                            getExplanationText(roundedScore, false)
                     );
                     tvConfidence.setText(
                             "Confidence: Based on historical price patterns"
@@ -100,6 +101,7 @@ public class ResultActivity extends AppCompatActivity {
                 });
 
             } catch (Exception e) {
+                // Offline fallback
                 new Handler(Looper.getMainLooper()).post(() -> {
                     progressTrust.setVisibility(View.GONE);
                     tvTrustScore.setVisibility(View.VISIBLE);
@@ -115,7 +117,7 @@ public class ResultActivity extends AppCompatActivity {
                     );
 
                     tvExplanation.setText(
-                            "Trust score calculated locally using your past price history."
+                            getExplanationText(roundedScore, true)
                     );
                     tvConfidence.setText("Confidence: Medium");
                 });
@@ -123,6 +125,7 @@ public class ResultActivity extends AppCompatActivity {
         }).start();
     }
 
+    // Color-coded UI helper
     private void applyTrustColor(
             double score,
             MaterialCardView card,
@@ -150,5 +153,27 @@ public class ResultActivity extends AppCompatActivity {
         statusView.setTextColor(ContextCompat.getColor(this, textColor));
         card.setCardBackgroundColor(ContextCompat.getColor(this, bgColor));
         statusView.setText(status);
+    }
+
+    // Dynamic explanation helper
+    private String getExplanationText(double score, boolean isOffline) {
+
+        if (isOffline) {
+            if (score >= 75) {
+                return "This price closely matches your previous purchase history.";
+            } else if (score >= 50) {
+                return "This price is slightly different from your usual range.";
+            } else {
+                return "This price is far from your historical prices and may be risky.";
+            }
+        } else {
+            if (score >= 75) {
+                return "This price is well within the normal range based on machine learning analysis.";
+            } else if (score >= 50) {
+                return "This price shows moderate deviation from typical pricing patterns.";
+            } else {
+                return "Machine learning detected this price as highly abnormal compared to past data.";
+            }
+        }
     }
 }
