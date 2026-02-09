@@ -95,8 +95,13 @@ public class ResultActivity extends AppCompatActivity {
                     tvExplanation.setText(
                             getExplanationText(roundedScore, false)
                     );
+
                     tvConfidence.setText(
-                            "Confidence: Based on historical price patterns"
+                            getConfidenceText(
+                                    roundedScore,
+                                    historicalPrices.size(),
+                                    false
+                            )
                     );
                 });
 
@@ -119,7 +124,14 @@ public class ResultActivity extends AppCompatActivity {
                     tvExplanation.setText(
                             getExplanationText(roundedScore, true)
                     );
-                    tvConfidence.setText("Confidence: Medium");
+
+                    tvConfidence.setText(
+                            getConfidenceText(
+                                    roundedScore,
+                                    historicalPrices.size(),
+                                    true
+                            )
+                    );
                 });
             }
         }).start();
@@ -174,6 +186,35 @@ public class ResultActivity extends AppCompatActivity {
             } else {
                 return "Machine learning detected this price as highly abnormal compared to past data.";
             }
+        }
+    }
+
+    // Confidence level helper
+    private String getConfidenceText(
+            double score,
+            int dataCount,
+            boolean isOffline
+    ) {
+        String level;
+
+        if (dataCount < 3) {
+            level = "Low";
+        } else if (dataCount <= 6) {
+            level = "Medium";
+        } else {
+            level = "High";
+        }
+
+        // Increase confidence for extreme scores
+        if (score >= 75 || score < 50) {
+            if (level.equals("Medium")) level = "High";
+            else if (level.equals("Low")) level = "Medium";
+        }
+
+        if (isOffline) {
+            return "Confidence: " + level + " (based on local history)";
+        } else {
+            return "Confidence: " + level + " (ML-assisted analysis)";
         }
     }
 }
