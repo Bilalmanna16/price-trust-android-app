@@ -15,10 +15,16 @@ import com.App.pricetrust.R;
 import com.App.pricetrust.database.DBHelper;
 import com.App.pricetrust.ml.TrustScoreMapper;
 import com.App.pricetrust.network.ApiClient;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.google.android.material.card.MaterialCardView;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
@@ -27,6 +33,7 @@ public class ResultActivity extends AppCompatActivity {
     private TextView tvStatus, tvExplanation, tvConfidence;
     private MaterialCardView cardTrustScore;
     private ProgressBar progressTrust;
+    private LineChart priceChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +49,7 @@ public class ResultActivity extends AppCompatActivity {
         tvConfidence = findViewById(R.id.tvConfidence);
         cardTrustScore = findViewById(R.id.cardTrustScore);
         progressTrust = findViewById(R.id.progressTrust);
+        priceChart = findViewById(R.id.priceChart);
 
         // Receive data
         Intent intent = getIntent();
@@ -55,6 +63,9 @@ public class ResultActivity extends AppCompatActivity {
         DBHelper dbHelper = new DBHelper(this);
         List<Double> historicalPrices =
                 dbHelper.getPricesForProduct(productName);
+
+        // Show price trend chart
+        showPriceTrendChart(historicalPrices, productPrice);
 
         // Local trust score (offline)
         double localTrustScore = TrustScoreMapper.calculateTrustScore(
@@ -137,7 +148,47 @@ public class ResultActivity extends AppCompatActivity {
         }).start();
     }
 
-    // Color-coded UI helper
+    // ----------------- CHART LOGIC -----------------
+
+    private void showPriceTrendChart(
+            List<Double> historicalPrices,
+            double currentPrice
+    ) {
+        List<Entry> entries = new ArrayList<>();
+
+        for (int i = 0; i < historicalPrices.size(); i++) {
+            entries.add(new Entry(i, historicalPrices.get(i).floatValue()));
+        }
+
+        // Add current price as last point
+        entries.add(new Entry(
+                historicalPrices.size(),
+                (float) currentPrice
+        ));
+
+        LineDataSet dataSet = new LineDataSet(entries, "Price Trend");
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleRadius(4f);
+        dataSet.setDrawValues(false);
+        dataSet.setColor(ContextCompat.getColor(this, R.color.trust_green));
+        dataSet.setCircleColor(ContextCompat.getColor(this, R.color.trust_green));
+
+        LineData lineData = new LineData(dataSet);
+        priceChart.setData(lineData);
+
+        priceChart.getDescription().setEnabled(false);
+        priceChart.getLegend().setEnabled(false);
+
+        XAxis xAxis = priceChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+
+        priceChart.getAxisRight().setEnabled(false);
+        priceChart.invalidate();
+    }
+
+    // ----------------- UI HELPERS -----------------
+
     private void applyTrustColor(
             double score,
             MaterialCardView card,
@@ -167,9 +218,7 @@ public class ResultActivity extends AppCompatActivity {
         statusView.setText(status);
     }
 
-    // Dynamic explanation helper
     private String getExplanationText(double score, boolean isOffline) {
-
         if (isOffline) {
             if (score >= 75) {
                 return "This price closely matches your previous purchase history.";
@@ -189,7 +238,6 @@ public class ResultActivity extends AppCompatActivity {
         }
     }
 
-    // Confidence level helper
     private String getConfidenceText(
             double score,
             int dataCount,
@@ -205,7 +253,6 @@ public class ResultActivity extends AppCompatActivity {
             level = "High";
         }
 
-        // Increase confidence for extreme scores
         if (score >= 75 || score < 50) {
             if (level.equals("Medium")) level = "High";
             else if (level.equals("Low")) level = "Medium";
