@@ -19,7 +19,12 @@ import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
 
-    private TextView tvProductName, tvProductPrice, tvTrustScore;
+    private TextView tvProductName;
+    private TextView tvProductPrice;
+    private TextView tvTrustScore;
+    private TextView tvStatus;
+    private TextView tvExplanation;
+    private TextView tvConfidence;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,30 +35,37 @@ public class ResultActivity extends AppCompatActivity {
         tvProductName = findViewById(R.id.tvProductName);
         tvProductPrice = findViewById(R.id.tvProductPrice);
         tvTrustScore = findViewById(R.id.tvTrustScore);
+        tvStatus = findViewById(R.id.tvStatus);
+        tvExplanation = findViewById(R.id.tvExplanation);
+        tvConfidence = findViewById(R.id.tvConfidence);
 
         // Receive data from MainActivity
         Intent intent = getIntent();
         String productName = intent.getStringExtra("product_name");
         double productPrice = intent.getDoubleExtra("product_price", 0.0);
 
-        // Display basic data
-        tvProductName.setText("Product: " + productName);
-        tvProductPrice.setText("Price: ₹" + productPrice);
+        // Display product info
+        tvProductName.setText(productName);
+        tvProductPrice.setText("₹" + productPrice);
 
-        // Fetch historical prices
+        // Fetch historical prices from SQLite
         DBHelper dbHelper = new DBHelper(this);
         List<Double> historicalPrices =
                 dbHelper.getPricesForProduct(productName);
 
-        // Local trust score (offline baseline)
+        // Local (offline) trust score
         double localTrustScore = TrustScoreMapper.calculateTrustScore(
                 productPrice,
                 historicalPrices
         );
 
-        tvTrustScore.setText("Calculating trust score...");
+        // Initial UI state
+        tvTrustScore.setText("--");
+        tvStatus.setText("Analyzing...");
+        tvExplanation.setText("Analyzing price based on past data.");
+        tvConfidence.setText("Confidence: Medium");
 
-        // Call ML API in background
+        // Call ML API in background thread
         new Thread(() -> {
             try {
                 JSONObject mlResponse = ApiClient.callMLApi(
@@ -65,20 +77,30 @@ public class ResultActivity extends AppCompatActivity {
                 double mlScore = mlResponse.getDouble("ml_trust_score");
                 String category = mlResponse.getString("category");
 
+                // Hybrid score (local + ML)
                 double finalScore =
                         (0.6 * localTrustScore) + (0.4 * mlScore);
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    tvTrustScore.setText(
-                            "Trust Score: " + finalScore + "\nStatus: " + category
+                    tvTrustScore.setText(String.valueOf(Math.round(finalScore)));
+                    tvStatus.setText(category);
+                    tvExplanation.setText(
+                            "This price was compared with your previous prices for this product."
+                    );
+                    tvConfidence.setText(
+                            "Confidence: Based on historical price patterns"
                     );
                 });
 
             } catch (Exception e) {
+                // Fallback to offline score
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    tvTrustScore.setText(
-                            "Trust Score (Offline): " + localTrustScore
+                    tvTrustScore.setText(String.valueOf(Math.round(localTrustScore)));
+                    tvStatus.setText("Offline Mode");
+                    tvExplanation.setText(
+                            "Trust score calculated locally using your past price history."
                     );
+                    tvConfidence.setText("Confidence: Medium");
                 });
             }
         }).start();
