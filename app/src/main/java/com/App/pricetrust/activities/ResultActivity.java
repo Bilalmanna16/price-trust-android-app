@@ -7,11 +7,13 @@ import android.os.Looper;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.App.pricetrust.R;
 import com.App.pricetrust.database.DBHelper;
 import com.App.pricetrust.ml.TrustScoreMapper;
 import com.App.pricetrust.network.ApiClient;
+import com.google.android.material.card.MaterialCardView;
 
 import org.json.JSONObject;
 
@@ -26,6 +28,8 @@ public class ResultActivity extends AppCompatActivity {
     private TextView tvExplanation;
     private TextView tvConfidence;
 
+    private MaterialCardView cardTrustScore;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +42,7 @@ public class ResultActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         tvExplanation = findViewById(R.id.tvExplanation);
         tvConfidence = findViewById(R.id.tvConfidence);
+        cardTrustScore = findViewById(R.id.cardTrustScore);
 
         // Receive data from MainActivity
         Intent intent = getIntent();
@@ -75,15 +80,22 @@ public class ResultActivity extends AppCompatActivity {
                 );
 
                 double mlScore = mlResponse.getDouble("ml_trust_score");
-                String category = mlResponse.getString("category");
 
                 // Hybrid score (local + ML)
                 double finalScore =
                         (0.6 * localTrustScore) + (0.4 * mlScore);
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    tvTrustScore.setText(String.valueOf(Math.round(finalScore)));
-                    tvStatus.setText(category);
+                    double roundedScore = Math.round(finalScore);
+
+                    tvTrustScore.setText(String.valueOf((int) roundedScore));
+                    applyTrustColor(
+                            roundedScore,
+                            cardTrustScore,
+                            tvTrustScore,
+                            tvStatus
+                    );
+
                     tvExplanation.setText(
                             "This price was compared with your previous prices for this product."
                     );
@@ -95,8 +107,16 @@ public class ResultActivity extends AppCompatActivity {
             } catch (Exception e) {
                 // Fallback to offline score
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    tvTrustScore.setText(String.valueOf(Math.round(localTrustScore)));
-                    tvStatus.setText("Offline Mode");
+                    double roundedScore = Math.round(localTrustScore);
+
+                    tvTrustScore.setText(String.valueOf((int) roundedScore));
+                    applyTrustColor(
+                            roundedScore,
+                            cardTrustScore,
+                            tvTrustScore,
+                            tvStatus
+                    );
+
                     tvExplanation.setText(
                             "Trust score calculated locally using your past price history."
                     );
@@ -104,5 +124,36 @@ public class ResultActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    // Helper method for color-coded trust UI
+    private void applyTrustColor(
+            double score,
+            MaterialCardView card,
+            TextView scoreView,
+            TextView statusView
+    ) {
+        int textColor;
+        int bgColor;
+        String status;
+
+        if (score >= 75) {
+            textColor = R.color.trust_green;
+            bgColor = R.color.trust_green_bg;
+            status = "Fair";
+        } else if (score >= 50) {
+            textColor = R.color.trust_yellow;
+            bgColor = R.color.trust_yellow_bg;
+            status = "Moderate";
+        } else {
+            textColor = R.color.trust_red;
+            bgColor = R.color.trust_red_bg;
+            status = "Suspicious";
+        }
+
+        scoreView.setTextColor(ContextCompat.getColor(this, textColor));
+        statusView.setTextColor(ContextCompat.getColor(this, textColor));
+        card.setCardBackgroundColor(ContextCompat.getColor(this, bgColor));
+        statusView.setText(status);
     }
 }
