@@ -30,7 +30,7 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/tvProductPrice"
@@ -38,7 +38,7 @@
                     android:textSize="16sp"
                     android:layout_marginTop="4dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -63,7 +63,7 @@
                     android:textSize="14sp"
                     android:textColor="#666"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/tvTrustScore"
@@ -72,9 +72,8 @@
                     android:textStyle="bold"
                     android:layout_marginTop="8dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
-                <!-- Progress Indicator -->
                 <ProgressBar
                     android:id="@+id/progressTrust"
                     style="?android:attr/progressBarStyleLarge"
@@ -89,7 +88,7 @@
                     android:textSize="16sp"
                     android:layout_marginTop="8dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -100,6 +99,53 @@
             android:layout_height="220dp"
             android:layout_marginBottom="12dp" />
 
+        <!-- ML Breakdown Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:text="ML Breakdown"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvKMeansScore"
+                    android:text="K-Means Score: --"
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvIsolationScore"
+                    android:text="Isolation Forest Score: --"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvMlReason"
+                    android:text="ML reasoning will appear here"
+                    android:textSize="13sp"
+                    android:textColor="#666"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Explanation Card -->
         <com.google.android.material.card.MaterialCardView
@@ -120,7 +166,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/tvExplanation"
@@ -128,7 +174,7 @@
                     android:textSize="14sp"
                     android:layout_marginTop="8dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -150,7 +196,7 @@
                     android:textStyle="bold"
                     android:textSize="16sp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/tvConfidence"
@@ -158,7 +204,7 @@
                     android:textSize="14sp"
                     android:layout_marginTop="8dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

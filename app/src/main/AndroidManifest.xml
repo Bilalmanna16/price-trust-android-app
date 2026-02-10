@@ -30,6 +30,7 @@
         </activity>
 
 
+
         <!-- Other Activities -->
         <activity android:name=".activities.ResultActivity" />
         <activity android:name=".activities.HistoryActivity" />
