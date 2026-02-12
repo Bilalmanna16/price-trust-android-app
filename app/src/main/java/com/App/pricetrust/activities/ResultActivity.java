@@ -207,7 +207,7 @@ public class ResultActivity extends AppCompatActivity {
         if (isOffline) {
             return score >= 75 ? "This price closely matches your past purchases."
                     : score >= 50 ? "This price slightly deviates from your history."
-                    : "This price is far from your usual range of prices.";
+                    : "This price is far from your usual range.";
         } else {
             return score >= 75 ? "ML found this price well within the normal range."
                     : score >= 50 ? "ML detected moderate deviation."
