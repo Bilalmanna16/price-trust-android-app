@@ -1,13 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
     <style name="Theme.Pricetrust" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/text_primary</item>
+        <item name="colorSecondary">@color/text_secondary</item>
     </style>
 
     <style name="Theme.Pricetrust.Splash" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowBackground">@color/bg_main</item>
     </style>
-
 
 </resources>

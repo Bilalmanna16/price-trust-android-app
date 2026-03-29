@@ -1,220 +1,229 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <!-- 🔥 Toolbar OUTSIDE ScrollView -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/resultToolbar"
+        android:title="Analysis Result"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"/>
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/resultToolbar"
+    <!-- 🔽 Scrollable content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:title="Analysis Result"
-            android:layout_marginTop="40dp"
-            app:navigationIcon="@android:drawable/ic_media_previous"/>
+            android:layout_height="wrap_content">
 
-        <!-- Product Info Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
-
-            <LinearLayout
+            <!-- Product Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_marginTop="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                app:cardCornerRadius="12dp">
 
-                <TextView
-                    android:id="@+id/tvProductName"
-                    android:text="Product"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tvProductPrice"
-                    android:text="Price"
-                    android:textSize="16sp"
-                    android:layout_marginTop="4dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:id="@+id/tvProductName"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-        <!-- Trust Score Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardTrustScore"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="6dp"
-            app:cardCornerRadius="16dp">
+                    <TextView
+                        android:id="@+id/tvProductPrice"
+                        android:textSize="16sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-            <LinearLayout
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Trust Score Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardTrustScore"
+                android:layout_marginTop="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="24dp">
+                app:cardCornerRadius="16dp">
 
-                <TextView
-                    android:text="Trust Score"
-                    android:textSize="14sp"
-                    android:textColor="#666"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tvTrustScore"
-                    android:text="--"
-                    android:textSize="36sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    <TextView
+                        android:text="Trust Score"
+                        android:textSize="14sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-                <ProgressBar
-                    android:id="@+id/progressTrust"
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:visibility="gone" />
+                    <TextView
+                        android:id="@+id/tvTrustScore"
+                        android:text="--"
+                        android:textSize="36sp"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-                <TextView
-                    android:id="@+id/tvStatus"
-                    android:text="Status"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <ProgressBar
+                        android:id="@+id/progressTrust"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-        <!-- Price Trend Chart -->
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/priceChart"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:layout_marginBottom="12dp" />
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        android:text="Status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-        <!-- ML Breakdown Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <LinearLayout
+            <!-- Line Chart -->
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/priceChart"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_marginTop="30dp"/>
+
+            <!-- Bar Chart -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barChart"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_marginTop="20dp"/>
+
+            <!-- Stats Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_marginTop="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
 
-                <TextView
-                    android:text="ML Breakdown"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tvKMeansScore"
-                    android:text="K-Means Score: --"
-                    android:textSize="14sp"
-                    android:layout_marginTop="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    <TextView
+                        android:text="Price Insights"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-                <TextView
-                    android:id="@+id/tvIsolationScore"
-                    android:text="Isolation Forest Score: --"
-                    android:textSize="14sp"
-                    android:layout_marginTop="4dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:weightSum="3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tvMlReason"
-                    android:text="ML reasoning will appear here"
-                    android:textSize="13sp"
-                    android:textColor="#666"
-                    android:layout_marginTop="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                        <!-- AVG -->
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
 
-        <!-- Explanation Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
+                            <TextView
+                                android:text="AVG"
+                                android:textSize="12sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                            <TextView
+                                android:id="@+id/tvAvg"
+                                android:text="₹0"
+                                android:textStyle="bold"
+                                android:textColor="@color/primary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
 
-                <TextView
-                    android:text="Why this score?"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                        <!-- MIN -->
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tvExplanation"
-                    android:text="Explanation goes here"
-                    android:textSize="14sp"
-                    android:layout_marginTop="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                            <TextView
+                                android:text="MIN"
+                                android:textSize="12sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
 
-        <!-- Confidence Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="12dp">
+                            <TextView
+                                android:id="@+id/tvMin"
+                                android:text="₹0"
+                                android:textStyle="bold"
+                                android:textColor="@color/trust_green"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                        <!-- MAX -->
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
 
-                <TextView
-                    android:text="Confidence"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                            <TextView
+                                android:text="MAX"
+                                android:textSize="12sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
 
-                <TextView
-                    android:id="@+id/tvConfidence"
-                    android:text="Based on historical prices"
-                    android:textSize="14sp"
-                    android:layout_marginTop="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                            <TextView
+                                android:id="@+id/tvMax"
+                                android:text="₹0"
+                                android:textStyle="bold"
+                                android:textColor="@color/trust_red"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
 
-    </LinearLayout>
-</ScrollView>
+                    </LinearLayout>
+
+                    <!-- DIFF -->
+                    <TextView
+                        android:id="@+id/tvDiff"
+                        android:text="Difference"
+                        android:textStyle="bold"
+                        android:layout_marginTop="12dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

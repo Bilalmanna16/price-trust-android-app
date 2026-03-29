@@ -1,108 +1,95 @@
 package com.App.pricetrust.database;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.Cursor;
+
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class DBHelper extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "PriceTrust.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DB_NAME = "PriceTrust.db";
+    private static final int DB_VERSION = 1;
+
+    private static final String TABLE_NAME = "prices";
 
     public DBHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, DB_NAME, null, DB_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        String SQL_CREATE_TABLE =
-                "CREATE TABLE " + PriceContract.PriceEntry.TABLE_NAME + " (" +
-                        PriceContract.PriceEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        PriceContract.PriceEntry.COLUMN_PRODUCT_NAME + " TEXT NOT NULL, " +
-                        PriceContract.PriceEntry.COLUMN_PRICE + " REAL NOT NULL, " +
-                        PriceContract.PriceEntry.COLUMN_TIMESTAMP + " INTEGER NOT NULL" +
-                        ");";
-
-        db.execSQL(SQL_CREATE_TABLE);
+        db.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "product TEXT, " +
+                "price REAL)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + PriceContract.PriceEntry.TABLE_NAME);
+
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }
 
+    // 🔥 INSERT METHOD (THIS WAS MISSING)
+    public void insertPrice(String product, double price) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("product", product);
+        values.put("price", price);
+
+        db.insert(TABLE_NAME, null, values);
+    }
+
+    // 🔥 GET HISTORY
     public List<String> getAllPriceEntries() {
 
-        List<String> priceList = new ArrayList<>();
+        List<String> list = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String[] projection = {
-                PriceContract.PriceEntry.COLUMN_PRODUCT_NAME,
-                PriceContract.PriceEntry.COLUMN_PRICE,
-                PriceContract.PriceEntry.COLUMN_TIMESTAMP
-        };
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME + " ORDER BY id DESC", null);
 
-        Cursor cursor = db.query(
-                PriceContract.PriceEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                PriceContract.PriceEntry.COLUMN_TIMESTAMP + " DESC"
-        );
+        if (cursor.moveToFirst()) {
+            do {
+                String product = cursor.getString(1);
+                double price = cursor.getDouble(2);
 
-        while (cursor.moveToNext()) {
-            String productName = cursor.getString(
-                    cursor.getColumnIndexOrThrow(
-                            PriceContract.PriceEntry.COLUMN_PRODUCT_NAME));
+                list.add(product + " - ₹" + price);
 
-            double price = cursor.getDouble(
-                    cursor.getColumnIndexOrThrow(
-                            PriceContract.PriceEntry.COLUMN_PRICE));
-
-            priceList.add(productName + " - ₹" + price);
+            } while (cursor.moveToNext());
         }
 
         cursor.close();
-        db.close();
-
-        return priceList;
+        return list;
     }
 
+    // 🔥 GET PRICES FOR CHART
     public List<Double> getPricesForProduct(String productName) {
 
         List<Double> prices = new ArrayList<>();
+
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String selection = PriceContract.PriceEntry.COLUMN_PRODUCT_NAME + " = ?";
-        String[] selectionArgs = { productName };
-
-        Cursor cursor = db.query(
-                PriceContract.PriceEntry.TABLE_NAME,
-                new String[]{ PriceContract.PriceEntry.COLUMN_PRICE },
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
+        Cursor cursor = db.rawQuery(
+                "SELECT price FROM " + TABLE_NAME + " WHERE product LIKE ?",
+                new String[]{"%" + productName + "%"}
         );
 
-        while (cursor.moveToNext()) {
-            prices.add(cursor.getDouble(0));
+        if (cursor.moveToFirst()) {
+            do {
+                prices.add(cursor.getDouble(0));
+            } while (cursor.moveToNext());
         }
 
         cursor.close();
-        db.close();
-
         return prices;
     }
-
 }

@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="trust_green">#2E7D32</color>
-    <color name="trust_yellow">#F9A825</color>
-    <color name="trust_red">#C62828</color>
 
-    <color name="trust_green_bg">#E8F5E9</color>
-    <color name="trust_yellow_bg">#FFFDE7</color>
-    <color name="trust_red_bg">#FDECEA</color>
+    <!-- Base -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Brand -->
+    <color name="primary">#4F46E5</color>
+    <color name="accent">#22C55E</color>
+
+    <!-- Background -->
+    <color name="bg_main">#F5F7FB</color>
+
+    <!-- Text -->
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+
+    <!-- Trust Colors -->
+    <color name="trust_green">#16A34A</color>
+    <color name="trust_yellow">#F59E0B</color>
+    <color name="trust_red">#DC2626</color>
+
+    <!-- Background States -->
+    <color name="trust_green_bg">#DCFCE7</color>
+    <color name="trust_yellow_bg">#FEF3C7</color>
+    <color name="trust_red_bg">#FEE2E2</color>
 
 </resources>

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.App.pricetrust.R;
 import com.App.pricetrust.database.DBHelper;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.List;
 
@@ -19,30 +20,19 @@ public class HistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Price History");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        MaterialToolbar toolbar = findViewById(R.id.historyToolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         ListView listView = findViewById(R.id.listViewHistory);
 
-        DBHelper dbHelper = new DBHelper(this);
-
-        List<String> historyList = dbHelper.getAllPriceEntries();
+        DBHelper db = new DBHelper(this);
+        List<String> data = db.getAllPriceEntries();
 
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(
-                        this,
+                new ArrayAdapter<>(this,
                         android.R.layout.simple_list_item_1,
-                        historyList
-                );
+                        data);
 
         listView.setAdapter(adapter);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 }

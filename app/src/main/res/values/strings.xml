@@ -6,4 +6,6 @@
     <string name="hint_price">Enter price</string>
     <string name="btn_analyze">Analyze Price</string>
     <string name="btn_history">View Price History</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
