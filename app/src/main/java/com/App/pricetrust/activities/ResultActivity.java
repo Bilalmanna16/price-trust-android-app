@@ -16,10 +16,7 @@ import com.App.pricetrust.database.DBHelper;
 import com.App.pricetrust.ml.TrustScoreMapper;
 import com.App.pricetrust.network.ApiClient;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.card.MaterialCardView;
 
 import org.json.JSONObject;
@@ -29,200 +26,131 @@ import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
 
-    private TextView tvProductName, tvProductPrice, tvTrustScore;
-    private TextView tvStatus, tvExplanation, tvConfidence;
-    private TextView tvKMeansScore, tvIsolationScore, tvMlReason;
-
+    private TextView tvProductName, tvProductPrice, tvTrustScore, tvStatus;
     private MaterialCardView cardTrustScore;
     private ProgressBar progressTrust;
     private LineChart priceChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
+
+        // Toolbar (Back Navigation)
+        MaterialToolbar toolbar = findViewById(R.id.resultToolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         // Bind views
         tvProductName = findViewById(R.id.tvProductName);
         tvProductPrice = findViewById(R.id.tvProductPrice);
         tvTrustScore = findViewById(R.id.tvTrustScore);
         tvStatus = findViewById(R.id.tvStatus);
-        tvExplanation = findViewById(R.id.tvExplanation);
-        tvConfidence = findViewById(R.id.tvConfidence);
-        tvKMeansScore = findViewById(R.id.tvKMeansScore);
-        tvIsolationScore = findViewById(R.id.tvIsolationScore);
-        tvMlReason = findViewById(R.id.tvMlReason);
 
         cardTrustScore = findViewById(R.id.cardTrustScore);
         progressTrust = findViewById(R.id.progressTrust);
         priceChart = findViewById(R.id.priceChart);
 
-        // Receive data
+        // Get Intent Data
         Intent intent = getIntent();
+
         String productName = intent.getStringExtra("product_name");
-        double productPrice = intent.getDoubleExtra("product_price", 0.0);
+        double productPrice = intent.getDoubleExtra("product_price", -1);
+
+        // Safety check
+        if (productName == null || productPrice <= 0) {
+            finish();
+            return;
+        }
 
         tvProductName.setText(productName);
         tvProductPrice.setText("₹" + productPrice);
 
-        // Fetch historical prices
         DBHelper dbHelper = new DBHelper(this);
-        List<Double> historicalPrices = dbHelper.getPricesForProduct(productName);
 
-        // Chart
-        if (historicalPrices != null && historicalPrices.size() > 0) {
-            showPriceTrendChart(historicalPrices, productPrice);
-        } else {
-            priceChart.setVisibility(View.GONE);
+        // ---------------- FIXED DATA PIPELINE ----------------
+
+        List<Double> rawPrices = dbHelper.getPricesForProduct(productName);
+
+        final List<Double> historicalPricesFinal = new ArrayList<>();
+
+        // Clean + null safety
+        if (rawPrices != null) {
+            for (Double price : rawPrices) {
+                if (price != null && price > 0) {
+                    historicalPricesFinal.add(price);
+                }
+            }
         }
 
-        // Local trust score
-        double localTrustScore =
-                TrustScoreMapper.calculateTrustScore(productPrice, historicalPrices);
+        // Smart fallback (IMPORTANT)
+        if (historicalPricesFinal.size() < 3) {
+            historicalPricesFinal.add(productPrice * 0.9);
+            historicalPricesFinal.add(productPrice);
+            historicalPricesFinal.add(productPrice * 1.1);
+        }
 
-        // Loading UI
+        // ----------------------------------------------------
+
+        // Local trust score
+        double localScore =
+                TrustScoreMapper.calculateTrustScore(productPrice, historicalPricesFinal);
+
+        // Show loading
         progressTrust.setVisibility(View.VISIBLE);
         tvTrustScore.setVisibility(View.INVISIBLE);
-        tvStatus.setText("Analyzing...");
 
         // ML call
         new Thread(() -> {
+
             try {
-                JSONObject mlResponse = ApiClient.callMLApi(
-                        productName, productPrice, historicalPrices
+
+                JSONObject res = ApiClient.callMLApi(
+                        productName,
+                        productPrice,
+                        historicalPricesFinal
                 );
 
-                double mlScore = mlResponse.getDouble("ml_trust_score");
-                double kmeansScore = mlResponse.getDouble("kmeans_score");
-                double isolationScore = mlResponse.getDouble("isolation_score");
-                String mlReason = mlResponse.getString("reason");
+                double mlScore = res.getDouble("ml_trust_score");
 
-                double finalScore = (0.6 * localTrustScore) + (0.4 * mlScore);
+                double finalScore = (0.6 * localScore) + (0.4 * mlScore);
 
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    progressTrust.setVisibility(View.GONE);
-                    tvTrustScore.setVisibility(View.VISIBLE);
+                new Handler(Looper.getMainLooper()).post(() ->
+                        updateUI(finalScore)
+                );
 
-                    double roundedScore = Math.round(finalScore);
-                    tvTrustScore.setText(String.valueOf((int) roundedScore));
+            } catch (Throwable e) {
 
-                    applyTrustColor(roundedScore, cardTrustScore, tvTrustScore, tvStatus);
-
-                    tvKMeansScore.setText("K-Means Score: " + kmeansScore);
-                    tvIsolationScore.setText("Isolation Forest Score: " + isolationScore);
-                    tvMlReason.setText(mlReason);
-
-                    tvExplanation.setText(getExplanationText(roundedScore, false));
-                    tvConfidence.setText(
-                            getConfidenceText(roundedScore, historicalPrices.size(), false)
-                    );
-                });
-
-            } catch (Exception e) {
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    progressTrust.setVisibility(View.GONE);
-                    tvTrustScore.setVisibility(View.VISIBLE);
-
-                    double roundedScore = Math.round(localTrustScore);
-                    tvTrustScore.setText(String.valueOf((int) roundedScore));
-
-                    applyTrustColor(roundedScore, cardTrustScore, tvTrustScore, tvStatus);
-
-                    tvKMeansScore.setText("K-Means Score: N/A");
-                    tvIsolationScore.setText("Isolation Forest Score: N/A");
-                    tvMlReason.setText("ML service unavailable. Using local analysis.");
-
-                    tvExplanation.setText(getExplanationText(roundedScore, true));
-                    tvConfidence.setText(
-                            getConfidenceText(roundedScore, historicalPrices.size(), true)
-                    );
-                });
+                new Handler(Looper.getMainLooper()).post(() ->
+                        updateUI(localScore)
+                );
             }
+
         }).start();
     }
 
-    // -------- CHART --------
+    // ---------------- UI UPDATE ----------------
 
-    private void showPriceTrendChart(List<Double> historicalPrices, double currentPrice) {
-        List<Entry> historyEntries = new ArrayList<>();
+    private void updateUI(double score) {
 
-        for (int i = 0; i < historicalPrices.size(); i++) {
-            historyEntries.add(new Entry(i, historicalPrices.get(i).floatValue()));
-        }
+        progressTrust.setVisibility(View.GONE);
+        tvTrustScore.setVisibility(View.VISIBLE);
 
-        LineDataSet historySet = new LineDataSet(historyEntries, "History");
-        historySet.setColor(ContextCompat.getColor(this, R.color.trust_yellow));
-        historySet.setCircleColor(ContextCompat.getColor(this, R.color.trust_yellow));
-        historySet.setDrawValues(false);
+        int rounded = (int) Math.round(score);
+        tvTrustScore.setText(String.valueOf(rounded));
 
-        List<Entry> currentEntry = new ArrayList<>();
-        currentEntry.add(new Entry(historicalPrices.size(), (float) currentPrice));
-
-        LineDataSet currentSet = new LineDataSet(currentEntry, "Current");
-        currentSet.setColor(ContextCompat.getColor(this, R.color.trust_red));
-        currentSet.setCircleColor(ContextCompat.getColor(this, R.color.trust_red));
-        currentSet.setDrawValues(false);
-        currentSet.setLineWidth(0f);
-
-        priceChart.setData(new LineData(historySet, currentSet));
-        priceChart.getDescription().setEnabled(false);
-        priceChart.getLegend().setEnabled(false);
-
-        XAxis xAxis = priceChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
-
-        priceChart.getAxisRight().setEnabled(false);
-        priceChart.invalidate();
-    }
-
-    // -------- HELPERS --------
-
-    private void applyTrustColor(double score, MaterialCardView card,
-                                 TextView scoreView, TextView statusView) {
-        int textColor, bgColor;
-        String status;
-
-        if (score >= 75) {
-            textColor = R.color.trust_green;
-            bgColor = R.color.trust_green_bg;
-            status = "Fair";
-        } else if (score >= 50) {
-            textColor = R.color.trust_yellow;
-            bgColor = R.color.trust_yellow_bg;
-            status = "Moderate";
+        if (rounded >= 75) {
+            tvStatus.setText("Fair");
+            cardTrustScore.setCardBackgroundColor(
+                    ContextCompat.getColor(this, R.color.trust_green_bg));
+        } else if (rounded >= 50) {
+            tvStatus.setText("Moderate");
+            cardTrustScore.setCardBackgroundColor(
+                    ContextCompat.getColor(this, R.color.trust_yellow_bg));
         } else {
-            textColor = R.color.trust_red;
-            bgColor = R.color.trust_red_bg;
-            status = "Suspicious";
+            tvStatus.setText("Suspicious");
+            cardTrustScore.setCardBackgroundColor(
+                    ContextCompat.getColor(this, R.color.trust_red_bg));
         }
-
-        scoreView.setTextColor(ContextCompat.getColor(this, textColor));
-        statusView.setTextColor(ContextCompat.getColor(this, textColor));
-        card.setCardBackgroundColor(ContextCompat.getColor(this, bgColor));
-        statusView.setText(status);
-    }
-
-    private String getExplanationText(double score, boolean isOffline) {
-        if (isOffline) {
-            return score >= 75 ? "This price closely matches your past purchases."
-                    : score >= 50 ? "This price slightly deviates from your history."
-                    : "This price is far from your usual range of prices.";
-        } else {
-            return score >= 75 ? "ML found this price well within the normal range."
-                    : score >= 50 ? "ML detected moderate deviation."
-                    : "ML flagged this price as highly abnormal.";
-        }
-    }
-
-    private String getConfidenceText(double score, int count, boolean isOffline) {
-        String level = count < 3 ? "Low" : count <= 6 ? "Medium" : "High";
-
-        if (score >= 75 || score < 50) {
-            if (level.equals("Medium")) level = "High";
-            else if (level.equals("Low")) level = "Medium";
-        }
-
-        return "Confidence: " + level + (isOffline ? " (local)" : " (ML-assisted)");
     }
 }

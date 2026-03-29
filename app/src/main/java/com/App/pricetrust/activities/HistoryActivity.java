@@ -15,20 +15,34 @@ public class HistoryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Price History");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         ListView listView = findViewById(R.id.listViewHistory);
 
         DBHelper dbHelper = new DBHelper(this);
+
         List<String> historyList = dbHelper.getAllPriceEntries();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_list_item_1,
-                historyList
-        );
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_list_item_1,
+                        historyList
+                );
 
         listView.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 }
