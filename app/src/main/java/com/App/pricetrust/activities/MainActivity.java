@@ -2,7 +2,6 @@ package com.App.pricetrust.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -10,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import com.App.pricetrust.HistoryFragment;
 import com.App.pricetrust.HomeFragment;
 import com.App.pricetrust.R;
+import com.App.pricetrust.auth.AuthManager;
 import com.App.pricetrust.database.DBHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -19,14 +19,75 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private final List<String> allowed = Arrays.asList(
-            "shoes","laptop","phone","mobile","tablet",
-            "watch","headphones","camera","tv","monitor",
-            "keyboard","mouse","printer"
+
+            // 📱 Electronics
+            "phone","mobile","smartphone","iphone","android",
+            "laptop","macbook","notebook","ultrabook",
+            "tablet","ipad",
+            "monitor","display","screen",
+            "tv","television","smart tv",
+
+            // 🎧 Accessories
+            "headphones","earphones","earbuds","airpods",
+            "speaker","bluetooth speaker",
+            "keyboard","mechanical keyboard",
+            "mouse","gaming mouse",
+
+            // ⌚ Wearables
+            "watch","smartwatch","fitness band",
+
+            // 📷 Camera
+            "camera","dslr","mirrorless camera",
+            "tripod","lens",
+
+            // 🎮 Gaming
+            "gaming console","playstation","xbox",
+            "controller","gaming chair",
+
+            // 👟 Fashion
+            "shoes","sneakers","boots","sandals",
+            "tshirt","shirt","jeans","jacket","hoodie",
+
+            // 🏠 Home Appliances
+            "refrigerator","fridge","washing machine",
+            "microwave","oven","air conditioner","ac",
+            "fan","cooler",
+
+            // 🍳 Kitchen
+            "mixer","blender","grinder",
+            "cookware","pan","pressure cooker",
+
+            // 🪑 Furniture
+            "chair","table","desk","sofa","bed",
+
+            // 📚 Office / Study
+            "printer","scanner","router","wifi router",
+            "pen","notebook","books",
+
+            // 🚗 Automotive
+            "car","bike","helmet",
+            "car accessories","bike accessories",
+
+            // 💄 Personal Care
+            "perfume","trimmer","shaver",
+            "hair dryer","skincare","cosmetics",
+
+            // 🧸 Misc
+            "bag","backpack","wallet",
+            "bottle","water bottle","umbrella"
     );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 🔥 FIX: auth check MUST be here
+        if (!AuthManager.isLoggedIn(this)) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_main);
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
@@ -59,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
     // 🔥 Called from HomeFragment
     public void handleAnalyze(String name, double price) {
 
-        // Save to DB
         DBHelper db = new DBHelper(this);
         db.insertPrice(name, price);
 

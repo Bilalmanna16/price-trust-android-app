@@ -33,6 +33,8 @@
         <!-- Other Activities -->
         <activity android:name=".activities.ResultActivity" />
         <activity android:name=".activities.HistoryActivity" />
+        <activity android:name=".activities.LoginActivity"/>
+        <activity android:name=".activities.SignupActivity"/>
 
     </application>
 

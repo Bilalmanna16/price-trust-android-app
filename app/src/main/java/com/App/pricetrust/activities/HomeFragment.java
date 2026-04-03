@@ -1,5 +1,6 @@
 package com.App.pricetrust;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -8,7 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.App.pricetrust.activities.LoginActivity;
 import com.App.pricetrust.activities.MainActivity;
+import com.App.pricetrust.auth.AuthManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -20,7 +23,7 @@ public class HomeFragment extends Fragment {
 
     private TextInputLayout tilName, tilPrice;
     private TextInputEditText etName, etPrice;
-    private MaterialButton btnAnalyze;
+    private MaterialButton btnAnalyze, btnLogout;
 
     private final List<String> allowed = Arrays.asList(
             "shoes","laptop","phone","mobile","tablet",
@@ -42,7 +45,16 @@ public class HomeFragment extends Fragment {
         etPrice = view.findViewById(R.id.etProductPrice);
         btnAnalyze = view.findViewById(R.id.btnAnalyze);
 
+        // 🔥 LOGOUT BUTTON
+        btnLogout = view.findViewById(R.id.btnLogout);
+
         btnAnalyze.setOnClickListener(v -> validateAndProceed());
+
+        btnLogout.setOnClickListener(v -> {
+            AuthManager.logout(requireContext());
+            startActivity(new Intent(getActivity(), LoginActivity.class));
+            requireActivity().finish();
+        });
     }
 
     private void validateAndProceed() {
@@ -95,7 +107,6 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        // 🔥 Call Activity method
         ((MainActivity) requireActivity()).handleAnalyze(name, price);
     }
 }
