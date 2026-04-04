@@ -31,8 +31,8 @@ public class LoginActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(v -> {
 
-            String email = etEmail.getText().toString();
-            String pass = etPassword.getText().toString();
+            String email = etEmail.getText().toString().trim().toLowerCase();
+            String pass = etPassword.getText().toString().trim();
 
             if (email.isEmpty() || pass.isEmpty()) {
                 tvError.setText("All fields required");
@@ -43,10 +43,13 @@ public class LoginActivity extends AppCompatActivity {
             boolean success = AuthManager.login(this, email, pass);
 
             if (success) {
-                AuthManager.setLoggedIn(this, true); // 🔥 IMPORTANT
+                AuthManager.setLoggedIn(this, true);
 
                 startActivity(new Intent(this, MainActivity.class));
                 finish();
+            } else {
+                tvError.setText("Invalid credentials");
+                tvError.setVisibility(View.VISIBLE);
             }
         });
 

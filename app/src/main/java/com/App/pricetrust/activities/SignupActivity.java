@@ -2,12 +2,9 @@ package com.App.pricetrust.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.App.pricetrust.R;
 import com.App.pricetrust.auth.AuthManager;
@@ -17,7 +14,6 @@ import com.google.android.material.textfield.TextInputEditText;
 public class SignupActivity extends AppCompatActivity {
 
     TextInputEditText etEmail, etPassword;
-    TextView tvLength, tvUpper, tvSymbol;
     MaterialButton btnSignup;
 
     @Override
@@ -27,54 +23,33 @@ public class SignupActivity extends AppCompatActivity {
 
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
-
-        tvLength = findViewById(R.id.tvRuleLength);
-        tvUpper = findViewById(R.id.tvRuleUpper);
-        tvSymbol = findViewById(R.id.tvRuleSymbol);
-
         btnSignup = findViewById(R.id.btnSignup);
-
-        etPassword.addTextChangedListener(new TextWatcher() {
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validatePassword(s.toString());
-            }
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void afterTextChanged(Editable s) {}
-        });
 
         btnSignup.setOnClickListener(v -> {
 
-            String email = etEmail.getText().toString();
-            String pass = etPassword.getText().toString();
+            String email = etEmail.getText().toString().trim().toLowerCase();
+            String pass = etPassword.getText().toString().trim();
 
-            if (isValid(pass)) {
-                AuthManager.saveUser(this, email, pass);
-                AuthManager.setLoggedIn(this, true);
-                startActivity(new Intent(this, MainActivity.class));
-                finish();
+            android.util.Log.d("AUTH_DEBUG", "Signup clicked");
+
+            if (email.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            // 🔥 TEMP SIMPLE VALIDATION (no blocking bugs)
+            if (pass.length() < 4) {
+                Toast.makeText(this, "Password too short", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            AuthManager.saveUser(this, email, pass);
+
+            Toast.makeText(this, "Account Created!", Toast.LENGTH_SHORT).show();
+
+            // 🔥 go to login (IMPORTANT)
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
         });
-    }
-
-    private void validatePassword(String pass) {
-
-        boolean length = pass.length() >= 6;
-        boolean upper = pass.matches(".*[A-Z].*");
-        boolean symbol = pass.matches(".*[^a-zA-Z0-9].*");
-
-        update(tvLength, length);
-        update(tvUpper, upper);
-        update(tvSymbol, symbol);
-    }
-
-    private boolean isValid(String pass) {
-        return pass.length() >= 6 &&
-                pass.matches(".*[A-Z].*") &&
-                pass.matches(".*[^a-zA-Z0-9].*");
-    }
-
-    private void update(TextView tv, boolean ok) {
-        tv.setTextColor(ContextCompat.getColor(this,
-                ok ? android.R.color.holo_green_dark : android.R.color.darker_gray));
     }
 }
