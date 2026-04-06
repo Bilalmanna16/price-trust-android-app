@@ -92,4 +92,15 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         return prices;
     }
+
+    public void deleteEntry(String product, double price) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.delete(
+                TABLE_NAME,
+                "product = ? AND price = ?",
+                new String[]{product, String.valueOf(price)}
+        );
+    }
 }
