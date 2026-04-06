@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
@@ -7,6 +8,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Title -->
     <TextView
         android:text="Create Account"
         android:textSize="26sp"
@@ -15,6 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <!-- Glass Card -->
     <LinearLayout
         android:background="@drawable/bg_glass"
         android:padding="20dp"
@@ -22,13 +25,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etEmail"
-            android:hint="Email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
+        <!-- EMAIL -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:hint="Email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- PASSWORD -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
             app:endIconMode="password_toggle"
             android:layout_marginTop="16dp"
             android:layout_width="match_parent"
@@ -41,17 +53,34 @@
                 android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Live rules -->
-        <TextView android:id="@+id/tvRuleLength" android:text="• 6+ chars" android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView android:id="@+id/tvRuleUpper" android:text="• 1 uppercase" android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView android:id="@+id/tvRuleSymbol" android:text="• 1 symbol" android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <!-- LIVE RULES -->
+        <TextView
+            android:id="@+id/tvRuleLength"
+            android:text="• At least 6 characters"
+            android:textSize="12sp"
+            android:layout_marginTop="8dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
 
+        <TextView
+            android:id="@+id/tvRuleUpper"
+            android:text="• 1 uppercase letter"
+            android:textSize="12sp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tvRuleSymbol"
+            android:text="• 1 special symbol"
+            android:textSize="12sp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <!-- SIGNUP BUTTON -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSignup"
-            android:text="Signup"
+            android:text="Create Account"
+            android:enabled="false"
             android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
